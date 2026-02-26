@@ -103,4 +103,127 @@ app.post('/api/login', async(req, res)=>{
   }
 })
 
+// Game Management API Endpoints (Supervisor only)
+
+// Create game
+app.post('/api/games', async(req, res) => {
+  try {
+    const { date, time, location, sportType, supervisorId } = req.body
+
+    if (!date || !time || !location || !sportType || !supervisorId) {
+      return res.status(400).json({ error: "Date, time, location, sport type, and supervisor ID are required" })
+    }
+
+    const game = await prisma.game.create({
+      data: {
+        date,
+        time,
+        location,
+        sportType,
+        supervisorId
+      }
+    })
+
+    res.status(201).json({ success: true, game })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Get all games for a supervisor
+app.get('/api/games/supervisor/:supervisorId', async(req, res) => {
+  try {
+    const { supervisorId } = req.params
+
+    const games = await prisma.game.findMany({
+      where: {
+        supervisorId: parseInt(supervisorId)
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+
+    res.status(200).json({ success: true, games })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Get single game by ID
+app.get('/api/games/:id', async(req, res) => {
+  try {
+    const { id } = req.params
+
+    const game = await prisma.game.findUnique({
+      where: {
+        id: parseInt(id)
+      }
+    })
+
+    if (!game) {
+      return res.status(404).json({ error: "Game not found" })
+    }
+
+    res.status(200).json({ success: true, game })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Update game
+app.put('/api/games/:id', async(req, res) => {
+  try {
+    const { id } = req.params
+    const { date, time, location, sportType } = req.body
+
+    // Verify game exists
+    const existingGame = await prisma.game.findUnique({
+      where: { id: parseInt(id) }
+    })
+
+    if (!existingGame) {
+      return res.status(404).json({ error: "Game not found" })
+    }
+
+    const updatedGame = await prisma.game.update({
+      where: { id: parseInt(id) },
+      data: {
+        ...(date && { date }),
+        ...(time && { time }),
+        ...(location && { location }),
+        ...(sportType && { sportType })
+      }
+    })
+
+    res.status(200).json({ success: true, game: updatedGame })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Delete game
+app.delete('/api/games/:id', async(req, res) => {
+  try {
+    const { id } = req.params
+
+    // Verify game exists
+    const existingGame = await prisma.game.findUnique({
+      where: { id: parseInt(id) }
+    })
+
+    if (!existingGame) {
+      return res.status(404).json({ error: "Game not found" })
+    }
+
+    await prisma.game.delete({
+      where: { id: parseInt(id) }
+    })
+
+    res.status(200).json({ success: true, message: "Game deleted successfully" })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 startServer(port)

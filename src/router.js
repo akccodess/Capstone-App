@@ -3,6 +3,7 @@ import LoginPage from './components/LoginPage.vue'
 import SignupForm from './components/SignupForm.vue'
 import StudentDashboard from './components/StudentDashboard.vue'
 import SupervisorDashboard from './components/SupervisorDashboard.vue'
+import GameManagement from './components/GameManagement.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/supervisor-dashboard',
       name: 'supervisor-dashboard',
       component: SupervisorDashboard,
+    },
+    {
+      path: '/game-management',
+      name: 'game-management',
+      component: GameManagement,
     },
   ],
 })
