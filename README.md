@@ -1,4 +1,6 @@
-# Vue App
+# Capstone-App
+
+Vue app with Node backend.
 
 ## Install
 
